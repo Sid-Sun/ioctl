@@ -1,0 +1,6 @@
+[submodule "ioctl-frontend"]
+	path = ioctl-frontend
+	url = git@github.com:Sid-Sun/ioctl-frontend.git
+[submodule "ioctl-api"]
+	path = ioctl-api
+	url = git@github.com:Sid-Sun/ioctl-api.git
