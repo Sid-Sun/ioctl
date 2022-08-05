@@ -1,0 +1,61 @@
+resources:
+  - name: ioctl-sources
+    type: git
+    source:
+      uri: git@github.com:Sid-Sun/ioctl.git
+      branch: main
+      private_key: ((repo_privkey))
+
+jobs:
+  - name: deploy-webapp-to-gh-pages
+    plan:
+      - get: ioctl-sources
+        trigger: true
+      - task: build-webapp
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: node
+              tag: lts
+          inputs:
+            - name: ioctl-sources
+          outputs:
+            - name: ioctl-sources
+          run:
+            path: bash
+            args:
+              - -c
+              - |
+                cd ioctl-sources/ioctl-frontend
+                npm ci --silent
+                npm run build
+      - task: commit-build-files
+        config:
+          platform: linux
+          image_resource:
+            type: registry-image
+            source:
+              repository: alpine/git
+          inputs:
+            - name: ioctl-sources
+          outputs:
+            - name: ioctl-sources
+          run:
+            path: sh
+            args:
+              - -exc
+              - |
+                cd ioctl-sources
+                mv docs/CNAME CNAME
+                rm -rf docs
+                mv ioctl-frontend/build docs
+                cp docs/index.html docs/404.html
+                mv CNAME docs/CNAME
+                git config --global user.name "concourse"
+                git config --global user.email "ci@localhost"
+                git add -A
+                git commit -s -m "update gh pages"
+      - put: ioctl-sources
+        params: {repository: ioctl-sources}
