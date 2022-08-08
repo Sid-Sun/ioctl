@@ -50,7 +50,7 @@ jobs:
                 cd ioctl-sources
                 mv docs/CNAME CNAME
                 rm -rf docs
-                mv ioctl-frontend/build docs
+                cp -R ioctl-frontend/build docs
                 cp docs/index.html docs/404.html
                 mv CNAME docs/CNAME
                 git config --global user.name "concourse"
